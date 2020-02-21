@@ -42,12 +42,22 @@ class User(db.Model):
 class Order(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     user_username  = db.Column(db.String(80),db.ForeignKey("user.username"),nullable=False)
-    date_order = db.Column(db.Date,nullable=False)
+    date = db.Column(db.Date,nullable=False)
     ordered_products = db.relationship("OrderedProduct", backref="order")
+
+    def __init__(self,user_username,date):
+        self.user_username = user_username.strip()
+        self.date = date
+
+    def serialize(self):
+        return {
+            "user_username": self.user_username,
+            "date": self.date        
+        }
     
 class Product(db.Model):
     id = db.Column(db.Integer,primary_key=True)
-    name_product = db.Column(db.String(80),nullable=False)
+    name = db.Column(db.String(80),nullable=False)
     url_image = db.Column(db.String(120),nullable=False)
     description = db.Column(db.String(120),nullable=False)
     weight = db.Column(db.Float,nullable=False)
@@ -56,6 +66,17 @@ class Product(db.Model):
     preparation = db.Column(db.String(280),nullable=False)
     ordered_products = db.relationship("OrderedProduct", back_populates="product") 
     ingredients = db.relationship("Ingredient", back_populates="product")
+    
+    def serialize(self):
+        return {
+            "name": self.name,
+            "url_image": self.url_image,
+            "description": self.description,
+            "weight": self.weight,
+            "size": self.size,
+            "factor": self.factor,
+            "preparation": self.preparation
+        }
 
 class OrderedProduct(db.Model):
     id = db.Column(db.Integer,primary_key=True)
@@ -64,6 +85,20 @@ class OrderedProduct(db.Model):
     quantity = db.Column(db.Integer,nullable=False)
     price = db.Column(db.Float,nullable=False)
     product = db.relationship("Product",back_populates="ordered_products")
+
+    def __init__(self,order_id,product_id,quantity,price):
+        self.order_id = order_id
+        self.product_id = product_id
+        self.quantity = quantity
+        self.price = price
+
+    def serialize(self):
+        return {
+            "order_id": self.order_id,
+            "product_id": self.product_id,
+            "quantity": self.quantity,
+            "price": self.price
+        }
 
 class RawMaterial(db.Model):
     id = db.Column(db.Integer,primary_key=True)
