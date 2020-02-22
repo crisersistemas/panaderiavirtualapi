@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for
+from flask import Flask, request, jsonify, url_for, make_response
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
@@ -37,31 +37,23 @@ def handle_hello():
 
     return jsonify(response_body), 200
 # ShoppingCar endpoint!
-@app.route("/shoppingcar/<username>",methods=["GET","POST","PUT","DELETE"])
+@app.route("/products",methods=["GET"])
 
-def handle_shoppingcar(username):
+def handle_product():
     headers = {
         "Content-Type": "aplication/json"
      }
     #chequeamos si el usuario existe
-    requeting_user = User.query.filter_by(username=username).all()
+    #requeting_user = User.query.filter_by(username=username).all()
     # Se busca el pedido del Usuario o se crea un primer pedido
     if request.method == "GET":
         print("Aqui Vemos los Pedidos")
         #Si el usuario tiene pedidos lo vemos aqui
-        if len(requesting_user) > 0:
-            products = Product.query.all()
-            response_body = []
-            for product in products:
-                response_body.append(product.serialize())
-            status_code = 200
-        else:
-            #usuario no existe 
-            print("usuaio no existe")
-            response_body = {
-                "status" : "HTTP_404_NOT_FOUND. usuario no existe"
-            }
-            status_code = 404
+        products = Product.query.all()
+        response_body = []
+        for product in products:
+            response_body.append(product.serialize())
+        status_code = 200
     else:
         response_body = "metodo no leido todavia por el testing "
         status_code = 501

@@ -69,15 +69,23 @@ class Product(db.Model):
     
     def serialize(self):
         return {
-            "name": self.name,
-            "url_image": self.url_image,
-            "description": self.description,
-            "weight": self.weight,
-            "size": self.size,
-            "factor": self.factor,
+            "id_prod": self.id,
+            "nom_prod": self.name,
+            "url_img": self.url_image,
+            "desc_prod": self.description,
+            "peso_prod": self.weight,
+            "tam_prod": self.size,
+            "cos_prod": self.get_cost(),
+            "pvp_prod": self.get_price(),
             "preparation": self.preparation
         }
 
+    def get_price(self):
+        return self.get_cost() * self.factor 
+    
+    def get_cost(self):
+        return 0.20
+        
 class OrderedProduct(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     order_id = db.Column(db.Integer,db.ForeignKey("order.id"),nullable=False)
