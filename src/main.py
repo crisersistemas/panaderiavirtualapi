@@ -36,16 +36,14 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
-# ShoppingCar endpoint!
+# Product endpoint!
 @app.route("/products",methods=["GET"])
 
 def handle_product():
     headers = {
         "Content-Type": "aplication/json"
      }
-    #chequeamos si el usuario existe
-    #requeting_user = User.query.filter_by(username=username).all()
-    # Se busca el pedido del Usuario o se crea un primer pedido
+    #mostramos todos loes productos para que puedan ser elegidos 
     if request.method == "GET":
         print("Aqui Vemos los Pedidos")
         #Si el usuario tiene pedidos lo vemos aqui
@@ -63,7 +61,40 @@ def handle_product():
         status_code,
         headers
     )
-    
+# Order Enpoint
+@app.route("/orders/<username>",methods=["POST","PUT","DELETE"])
+
+def handle_order():
+    headers = {
+        "Content-Type": "aplication/json"
+    }
+    # Creamos el pedido en la base de datos 
+    if request.method == "POST":
+        requesting_order = Order.query.filter_by(user_username=Username).all()
+        print("Crear Usuario con el primer pedido")
+        if len(requesting_order) > 0:
+            #Usuario ya tiene un pedido
+            response_body = {
+                "status" : "HTTP_400_BAD_REQUEST. Pedido No puede ser creado de Nuevo"
+            }
+            status_code = 400
+        else:
+            # Usuario no existe se crea con un primer pedido
+            print("Se crea el usuario Con el Username y un primer pedido")
+            new_order_products = json.loads(request.data)
+            first_order = Order(new_order_products["date"],user_username)
+            db.session.add(first_order)
+            db.session.commit()
+            print("Se crean las ordenes de los productos")
+            for order_product in new_order_products:
+                new_order_product = OrderedProduct(order_product["order_id"],order_product["product_id"],order_pro["quantity"],order_product["price"])
+                db.sessio.add(new_order_product)
+            db.session.commit()
+            response_body = {
+                "status": "HTTP_200_OK. Ok "
+            }
+            status_code = 200           
+
     # this only runs if `$ python src/main.py` is executed
 
 if __name__ == '__main__':
